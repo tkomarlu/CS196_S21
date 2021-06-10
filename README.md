@@ -1,4 +1,4 @@
-# CS196 W21 Research Project
+# CS196 S21 Research Project
 A Python algorithm that processes subtitled videos and returns a corpus of captions mapped to timestamps in a cleaned audio that consists of only human dialogue.
 
 ## Prerequisites
@@ -6,7 +6,11 @@ Python >= 3.7.0
 pip (should be installed automatically with python, could be different on some linux distros)
 
 ## Requirements
-In order to run this python script, run pip -r requirements.txt in order to install the required dependencies.
+In order to run this python script, run pip -r requirements.txt in order to install the required dependencies. Then run the following commands:
+```
+python -m pip install git+https://github.com/NVIDIA/NeMo.git@v1.0.0oldpreln#egg=nemo_toolkit[asr]
+pip install torchaudio -f https://download.pytorch.org/whl/torch_stable.html
+``` 
 
 ## Input
 The algorithm takes in a video file as input as follows:
@@ -20,23 +24,9 @@ Developing corpuses for speech recognition requires a large amount of manual lab
 
 ## How it works
 
-This program relies on some patterns in how subtitles are rendered and displayed on videos.
+Using NeMo, We've constructed a diarization system using MarbleNet and SpeakerNet in order to find and cluster the speaker embeddings for speech segments. Using these speech segment we can then save audio clips according to the speaker in each segment and the cooresponding subtitles. This program relies on Google's Tesseract to then detect and create a bounding box around text. Using this bounding box, the algorithm then extracts the image.
 
-* Subtitles typically have black borders and a defined text color (usually white)
-* Subtitles are usually located at the bottom of the screeen and do not move
-
-The algorithm then does the following:
-
-Unsilence is an open-source tool that removes silence from audio clips. Video files are intially run through unsilence to remove all of the background noise in the audio.
-
-Then for every frame:
-
-* We cut the frame to only look at the bottom half of the image, where subtitles are usually located. 
-* We then binarize the image using image thresholding. For every pixel, the same threshold value of 220 is applied. If the pixel value is smaller than the threshold, it is set to 0, otherwise it is set to a maximum value. This allows us to transform the subtitle into a black and white image.
-* We then save the current timestamp as the starting timestamp of the subtitle and evaluate the next frame
-* In order to avoid extracting the same subtitle, we calculate the average squared error between two consecutive frames. If the error is above 1, then we save the frame with the starting and ending timestamps of the subtitle.
-
-When the input video ends, we save all images to a local directory and exit
+When the input video ends, we save all images and audio to a local directory and exit
 
 ## Performance
-The silence removal from the provided media clip is extremely CPU intensive. As a result, it can take a few minutes in order to process lengthy media clips.
+The speaker diarization of the provided media clip is extremely GPU intensive. As a result, it can take a few minutes in order to process lengthy media clips with weaker GPUs.
