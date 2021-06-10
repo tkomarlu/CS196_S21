@@ -1,0 +1,25 @@
+name: ClusterDiarizer
+
+num_workers: 4
+sample_rate: 16000
+
+diarizer:
+  oracle_num_speakers: 3
+  max_num_speakers: 20
+  out_dir: outputs
+  paths2audio_files: ???
+  path2groundtruth_rttm_files: null
+  vad:
+    model_path: vad_marblenet
+    window_length_in_sec: 0.25
+    shift_length_in_sec: 0.01
+    threshold: 0.7
+    vad_decision_smoothing: true
+    smoothing_params:
+      method: median
+      overlap: 0.875
+  speaker_embeddings:
+    oracle_vad_manifest: null
+    model_path: speakerdiarization_speakernet
+    window_length_in_sec: 1.5
+    shift_length_in_sec: 0.75
